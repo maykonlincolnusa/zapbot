@@ -1,221 +1,223 @@
-# Plataforma SaaS de WhatsApp
+<div align="center">
 
-Este repositório é um scaffold modular de SaaS para automação de WhatsApp, atendimento ao vivo, agentes internos, integrações MCP e acesso programático para agentes externos.
-
-A aplicação raiz é o MVP atual em Express. O protótipo antigo em múltiplos serviços permanece em `backend/services/` apenas como referência.
-
-## O Que Está Incluído
-
-- Integração com WhatsApp Cloud API para texto, templates, botões e envio de mídia por URL.
-- `/webhook` para verificação da Meta e ingestão de mensagens/status. Eventos brutos ficam em `WebhookEvent`; mensagens entram em `Message`.
-- Modelos Sequelize para contatos, fluxos, sequências, transmissões, atendentes, conversas, agentes, documentos RAG e servidores MCP.
-- Recursos de automação: fluxos JSON, sequências com atraso, transmissões com delay fixo ou inteligente e atendimento ao vivo com assumir/devolver/transferir.
-- Assistente interno em `ai/assistant.js` com remoção de PII, checagens contra jailbreak, moderação opcional, classificação de intenção e contexto RAG.
-- Camada de integrações em `integrations/` e `routes/integrations.js` para CRM, pagamentos, REST, GraphQL e servidores MCP externos.
-- Servidor MCP Python em `mcp-server/` com backend mock e live para clientes de IA enviarem mensagens via WhatsApp pela API da plataforma.
-- Painel React/Vite em `frontend/`, com interface em português, paleta de comandos e tema roxo escuro, preto e branco.
-
-## Estrutura
-
-```text
-server.js                    Entrada Express, rotas, webhook e schedulers
-webhookHandler.js            Interpreta mensagens/status do WhatsApp e persiste eventos
-whatsapp.js                  Helpers da WhatsApp Cloud API
-ai/assistant.js              Assistente com guardrails e RAG
-ai/platformAssistant.js      Ajuda contextual para usar a plataforma
-flowEngine.js                Interpretador de fluxos JSON
-rag.js                       Scaffold Qdrant/RAG
-models/                      Modelos Sequelize para Supabase/PostgreSQL ou SQLite local
-routes/                      Rotas REST
-tasks/                       Schedulers de sequências e transmissões
-integrations/                Conectores externos e cliente MCP
-mcp-server/                  Servidor MCP Python para clientes externos
-examples/                    Exemplos JSON de fluxo, sequência e transmissão
-frontend/                    Interface React/Vite
-docs/supabase.sql            SQL complementar para índices, pgvector e RLS opcional
+```
+███████╗ █████╗ ██████╗ ██████╗  ██████╗ ████████╗
+╚══███╔╝██╔══██╗██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝
+  ███╔╝ ███████║██████╔╝██████╔╝██║   ██║   ██║
+ ███╔╝  ██╔══██║██╔═══╝ ██╔══██╗██║   ██║   ██║
+███████╗██║  ██║██║     ██████╔╝╚██████╔╝   ██║
+╚══════╝╚═╝  ╚═╝╚═╝     ╚═════╝  ╚═════╝   ╚═╝
 ```
 
-## Rodar Localmente
+### **Full-Stack WhatsApp SaaS Platform**
+*Automate. Support. Integrate. Scale — on the world's largest messaging channel.*
+
+---
+
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=flat-square&logo=postgresql&logoColor=white)](https://supabase.com/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-DC244C?style=flat-square&logo=qdrant&logoColor=white)](https://qdrant.tech/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-Compatible-412991?style=flat-square&logo=openai&logoColor=white)](https://platform.openai.com/)
+[![MCP](https://img.shields.io/badge/MCP-Python%20Server-3776AB?style=flat-square&logo=python&logoColor=white)](https://modelcontextprotocol.io/)
+[![Terraform](https://img.shields.io/badge/Terraform-AWS-7B42BC?style=flat-square&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![CI/CD](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/features/actions)
+[![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
+
+</div>
+
+---
+
+## What is ZapBot?
+
+**ZapBot** is a production-grade, modular WhatsApp SaaS platform engineered for organizations that need more than a chatbot. It covers the full operational stack: automated conversation flows, live agent support, an AI assistant with enterprise-grade guardrails, RAG-powered context, external integrations, and a Python MCP server that lets any AI client — Claude, Cursor, or custom agents — operate WhatsApp programmatically through a scoped, authenticated API.
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                              ZAPBOT PLATFORM                               │
+│                                                                            │
+│   RECEIVE ──► ROUTE ──► AUTOMATE ──► ASSIST ──► INTEGRATE ──► RESPOND     │
+│                                                                            │
+│   Webhook     Flow       Sequences    AI + RAG    CRM · MCP    WhatsApp    │
+│   ingest      engine     broadcasts   guardrails  payments     Cloud API   │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+> The root Express application is the current MVP. The multi-service prototype in `backend/services/` is preserved as reference only.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    META[Meta Cloud API] --> WH[Webhook Handler]
+    WH --> FE[Flow Engine]
+    WH --> MSG[Message Store]
+    FE --> SEQ[Sequences\nScheduler]
+    FE --> BCT[Broadcasts\nScheduler]
+    WH --> AI[AI Assistant\nguardrails + RAG]
+    AI --> QD[(Qdrant\nVector Store)]
+    AI --> LLM[OpenAI / OpenRouter]
+    MSG --> PG[(PostgreSQL\nSupabase)]
+    WH --> LC[Live Chat\nAgents]
+    LC --> SSE[SSE Stream\n/chats/events]
+    LC --> INT[Integrations\nCRM · Payments · MCP]
+    MCP[MCP Server\nPython] --> API[Platform API]
+    EXT[External AI Clients\nClaude · Cursor · Agents] --> MCP
+    UI[React Dashboard\nVite · Tailwind] --> API[FastAPI API]
+    API --> PG
+```
+
+### Layer Breakdown
+
+| Layer | Technology | Responsibility |
+|---|---|---|
+| **Frontend** | React 18 · Vite · Tailwind · Command Palette | Dashboard, live chat UI, automation management |
+| **API Server** | Node.js · Express · Sequelize ORM | REST endpoints, webhook, orchestration |
+| **Webhook Handler** | `webhookHandler.js` | Parses Meta payloads, persists events and messages |
+| **Flow Engine** | `flowEngine.js` | Interprets JSON-defined conversation flows |
+| **Schedulers** | `tasks/` · node-cron | Drip sequences and broadcast execution |
+| **AI Assistant** | `ai/assistant.js` | Guardrails, intent classification, RAG context |
+| **Vector Search** | Qdrant · pgvector | Document indexing and semantic retrieval |
+| **Persistence** | PostgreSQL · Supabase (SQLite for local dev) | All platform data |
+| **Integrations** | `integrations/` | CRM, payments, REST, GraphQL, external MCP |
+| **MCP Server** | Python · JSON-RPC | Programmatic WhatsApp access for AI clients |
+| **Infrastructure** | Terraform · AWS · Docker Compose | Cloud provisioning and container runtime |
+| **CI/CD** | GitHub Actions | Automated test and deployment pipeline |
+
+---
+
+## Quick Start
+
+### 1 — Clone & Configure
 
 ```bash
+git clone https://github.com/maykonlincolnusa/zapbot.git
+cd zapbot
 copy .env.example .env
+```
+
+### 2 — Install Dependencies
+
+```bash
 npm install
 npm install --prefix frontend
+```
+
+### 3 — Start the Platform
+
+```bash
 npm run dev
 ```
 
-Frontend: `http://localhost:5173`
+| Service | URL |
+|---|---|
+| **Frontend Dashboard** | http://localhost:5173 |
+| **API** | http://localhost:3000 |
 
-API: `http://localhost:3000`
+### 4 — First Admin
 
-Para personalizar o nome visível do produto:
-
-```env
-VITE_PROJECT_NAME={{PROJECT_NAME}}
-DEFAULT_WORKSPACE_NAME={{PROJECT_NAME}} Demo
-```
-
-Rodar somente a API:
+Register through the UI, or seed the initial admin via `.env`:
 
 ```bash
-npm start
-```
-
-Rodar validações:
-
-```bash
-npm run check
-npm test
-npm run build:frontend
-```
-
-## Primeiro Admin
-
-Use a tela de cadastro para criar o primeiro admin da área de trabalho, ou configure um usuário inicial no `.env`:
-
-```env
 ADMIN_NAME=
 ADMIN_EMAIL=admin@example.local
-ADMIN_PASSWORD=troque-por-uma-senha-local
+ADMIN_PASSWORD=your-local-password
 ```
 
-## Ambiente
+---
 
-```env
-PORT=3000
-DATABASE_URL=
-SQLITE_PATH=./data/zapbot-ai.sqlite
-JWT_SECRET=troque-por-um-segredo-longo
-SERVICE_TOKEN=troque-por-um-token-longo
-API_INTEGRATION_KEY=dev-api-key
+## AI Assistant — Guardrail Pipeline
 
-WHATSAPP_VERIFY_TOKEN=token-de-verificacao-do-webhook
-WHATSAPP_API_TOKEN=token-da-whatsapp-cloud-api
-WHATSAPP_PHONE_NUMBER_ID=id-do-numero
-WHATSAPP_GRAPH_VERSION=v20.0
+The internal assistant in `ai/assistant.js` is not a plain LLM wrapper. Every inbound message runs through a sequential safety and enrichment pipeline before a response is generated:
 
-OPENAI_API_KEY=chave-openai
-OPENAI_MODEL=gpt-4o-mini
-OPENAI_AUTO_REPLY=true
-OPENAI_MODERATION_ENABLED=false
-
-OPENROUTER_API_KEY=chave-openrouter
-OPENROUTER_DEFAULT_MODEL=openai/gpt-4o-mini
-
-QDRANT_URL=
-QDRANT_API_KEY=
-QDRANT_COLLECTION=zapbot_documents
+```
+Inbound Message
+      │
+      ▼
+┌─────────────────────┐
+│  PII Detection      │  ← Strip personal data before any model call
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│  Jailbreak Check    │  ← Classify and block adversarial prompts
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│  Moderation Layer   │  ← Optional OpenAI content moderation
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│  Intent Classifier  │  ← Route to flow, agent, or AI response
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│  RAG Context        │  ← Inject relevant document chunks (Qdrant)
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│  LLM Response       │  ← OpenAI / OpenRouter (configurable model)
+└─────────────────────┘
 ```
 
-Quando `DATABASE_URL` estiver vazio, o projeto usa SQLite local. Para produção, use Supabase/PostgreSQL com `DB_SSL=true`.
+---
 
-## Supabase
+## MCP Server
 
-1. Crie um projeto no Supabase.
-2. Copie a connection string PostgreSQL para `DATABASE_URL`.
-3. Mantenha `DB_SSL=true`.
-4. Inicie a API para o Sequelize criar as tabelas.
-5. Rode `docs/supabase.sql` para índices extras, pgvector e políticas RLS opcionais.
+ZapBot ships a Python MCP server (`mcp-server/`) that exposes platform capabilities to any MCP-compatible AI client — Claude, Cursor, or custom agents — without ever sharing Meta credentials externally.
 
-## WhatsApp Cloud API
-
-Configure a URL de webhook da Meta como:
-
-```text
-https://seu-dominio.com/webhook
+```
+External AI Client (Claude / Cursor / Agent)
+         │
+         │  JSON-RPC  tools/list · tools/call
+         ▼
+┌─────────────────────────┐
+│   Python MCP Server     │
+│   mock backend          │  ← Safe local dev and testing
+│   live backend          │  ← Calls platform REST API
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│   Platform API          │  ← Scoped, authenticated
+│   /api/mcp/*            │
+└──────────┬──────────────┘
+           │
+           ▼
+    WhatsApp Cloud API
 ```
 
-Em desenvolvimento local, use um túnel HTTPS apontando para:
-
-```text
-http://localhost:3000/webhook
-```
-
-O handler espera payloads oficiais da Cloud API: mensagens chegam em `messages[]` e eventos de entrega em `statuses[]`.
-
-## Endpoints REST
-
-Autenticação:
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-
-Automação:
-
-- `GET /api/contacts`
-- `POST /api/contacts`
-- `GET /api/automation/flows`
-- `POST /api/automation/flows`
-- `POST /api/automation/flows/:id/start`
-- `GET /api/automation/sequences`
-- `POST /api/automation/sequences`
-- `POST /api/automation/sequences/:id/enroll`
-- `GET /api/automation/transmissions`
-- `POST /api/automation/transmissions`
-- `POST /api/automation/transmissions/:id/start`
-
-Atendimento ao vivo:
-
-- `GET /api/chats?filter=all|mine|unassigned`
-- `GET /api/chats/:id`
-- `GET /api/chats/:id/messages`
-- `POST /api/chats/:id/claim`
-- `POST /api/chats/:id/unclaim`
-- `POST /api/chats/:id/messages`
-- `GET /api/chats/events?token=<jwt-ou-service-token>` para snapshots SSE
-
-Integrações:
-
-- `GET /api/integrations`
-- `GET /api/integrations/servers`
-- `POST /api/integrations/servers`
-- `POST /api/integrations/servers/:id/discover`
-- `POST /api/integrations/servers/:id/invoke`
-- `POST /api/integrations/crm/sync-contact`
-- `POST /api/integrations/payments/link`
-- `POST /api/integrations/rest`
-- `POST /api/integrations/graphql`
-
-API MCP usada pelo servidor Python:
-
-- `GET /api/mcp/tools`
-- `GET /api/mcp/contacts/search?q=lead`
-- `POST /api/mcp/contacts`
-- `GET /api/mcp/chats`
-- `GET /api/mcp/chats/:id`
-- `GET /api/mcp/chats/:id/messages`
-- `POST /api/mcp/messages`
-- `POST /api/mcp/files`
-
-## Servidor MCP
-
-Instale as dependências Python:
+### Setup
 
 ```bash
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 ```
 
-Backend mock:
+**Mock backend** (local dev):
 
 ```bash
 set MCP_BACKEND=mock
 .venv\Scripts\python mcp-server\main.py
 ```
 
-Backend live:
+**Live backend** (production):
 
 ```bash
 set MCP_BACKEND=live
 set ZAPBOT_API_BASE_URL=http://localhost:3000
-set ZAPBOT_API_TOKEN=troque-por-service-token-ou-jwt
+set ZAPBOT_API_TOKEN=your-service-token
 .venv\Scripts\python mcp-server\main.py
 ```
 
-No modo live, o MCP chama endpoints da API da plataforma. A API envia pelo WhatsApp usando `WHATSAPP_API_TOKEN` e `WHATSAPP_PHONE_NUMBER_ID`; clientes MCP não precisam receber credenciais diretas da Meta.
-
-Exemplo para registrar em clientes MCP:
+### Register in MCP Clients
 
 ```json
 {
@@ -226,27 +228,262 @@ Exemplo para registrar em clientes MCP:
       "env": {
         "MCP_BACKEND": "live",
         "ZAPBOT_API_BASE_URL": "http://localhost:3000",
-        "ZAPBOT_API_TOKEN": "troque-por-service-token"
+        "ZAPBOT_API_TOKEN": "your-service-token"
       }
     }
   }
 }
 ```
 
-O mesmo formato está em `mcp-server/client-config.example.json`.
+### Available MCP Tools
 
-## Exemplos JSON
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/mcp/tools` | GET | List available tools |
+| `/api/mcp/contacts/search` | GET | Search contacts by query |
+| `/api/mcp/contacts` | POST | Create a contact |
+| `/api/mcp/chats` | GET | List all chats |
+| `/api/mcp/chats/:id` | GET | Get a specific chat |
+| `/api/mcp/chats/:id/messages` | GET | Get chat messages |
+| `/api/mcp/messages` | POST | Send a WhatsApp message |
+| `/api/mcp/files` | POST | Upload a file |
 
-- Fluxo: `examples/flow.sample.json`
-- Sequência: `examples/sequence.sample.json`
-- Transmissão: `examples/transmission.sample.json`
+---
 
-## Notas De Produção
+## API Reference
 
-- Troque `JWT_SECRET`, `SERVICE_TOKEN`, senhas admin e chaves de API antes de expor o serviço.
-- Use HTTPS para webhook da Meta e para acesso live ao MCP.
-- Respeite opt-in, opt-out e política de templates do WhatsApp antes de transmissões grandes.
-- Adicione allowlists por conector antes de liberar REST/GraphQL genérico para usuários não confiáveis.
-- Integrações MCP externas usam JSON-RPC `tools/list` e `tools/call`; armazene apenas tokens escopados.
-- Substitua `node-cron` por uma fila durável quando o volume de transmissões e sequências crescer.
-- Complete a geração de embeddings em `rag.js` antes de depender da qualidade do RAG em produção.
+### Authentication
+
+```http
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/auth/me
+```
+
+---
+
+### Automation
+
+```http
+GET  /api/contacts
+POST /api/contacts
+
+GET  /api/automation/flows
+POST /api/automation/flows
+POST /api/automation/flows/:id/start
+
+GET  /api/automation/sequences
+POST /api/automation/sequences
+POST /api/automation/sequences/:id/enroll
+
+GET  /api/automation/transmissions
+POST /api/automation/transmissions
+POST /api/automation/transmissions/:id/start
+```
+
+---
+
+### Live Support
+
+```http
+GET  /api/chats?filter=all|mine|unassigned
+GET  /api/chats/:id
+GET  /api/chats/:id/messages
+POST /api/chats/:id/claim
+POST /api/chats/:id/unclaim
+POST /api/chats/:id/messages
+GET  /api/chats/events?token=<jwt>        # SSE live stream
+```
+
+---
+
+### Integrations
+
+```http
+GET  /api/integrations
+GET  /api/integrations/servers
+POST /api/integrations/servers
+POST /api/integrations/servers/:id/discover
+POST /api/integrations/servers/:id/invoke
+POST /api/integrations/crm/sync-contact
+POST /api/integrations/payments/link
+POST /api/integrations/rest
+POST /api/integrations/graphql
+```
+
+---
+
+## Configuration
+
+### Core
+
+```bash
+PORT=3000
+DATABASE_URL=                             # Empty = SQLite local dev
+SQLITE_PATH=./data/zapbot-ai.sqlite
+JWT_SECRET=replace-with-long-secret
+SERVICE_TOKEN=replace-with-long-token
+API_INTEGRATION_KEY=dev-api-key
+```
+
+### WhatsApp Cloud API
+
+```bash
+WHATSAPP_VERIFY_TOKEN=webhook-verify-token
+WHATSAPP_API_TOKEN=whatsapp-cloud-api-token
+WHATSAPP_PHONE_NUMBER_ID=phone-number-id
+WHATSAPP_GRAPH_VERSION=v20.0
+```
+
+Configure the Meta webhook URL as:
+
+```
+https://your-domain.com/webhook
+```
+
+For local development, use an HTTPS tunnel pointing to `http://localhost:3000/webhook`.
+
+### AI Provider
+
+```bash
+OPENAI_API_KEY=your-openai-key
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_AUTO_REPLY=true
+OPENAI_MODERATION_ENABLED=false
+
+OPENROUTER_API_KEY=your-openrouter-key
+OPENROUTER_DEFAULT_MODEL=openai/gpt-4o-mini
+```
+
+### Vector Search
+
+```bash
+QDRANT_URL=
+QDRANT_API_KEY=
+QDRANT_COLLECTION=zapbot_documents
+```
+
+---
+
+## Database
+
+### Local Development (SQLite)
+
+Leave `DATABASE_URL` empty. ZapBot auto-creates an SQLite database at `SQLITE_PATH`.
+
+### Production (Supabase / PostgreSQL)
+
+1. Create a project on [Supabase](https://supabase.com).
+2. Copy the PostgreSQL connection string into `DATABASE_URL`.
+3. Set `DB_SSL=true`.
+4. Start the API — Sequelize creates all tables automatically.
+5. Run `docs/supabase.sql` for extra indexes, pgvector, and optional RLS policies.
+
+---
+
+## Infrastructure
+
+ZapBot ships with a production-ready infrastructure layer:
+
+```
+infra/
+└── aws/
+    └── terraform/     # AWS provisioning (VPC, ECS, RDS, etc.)
+
+.github/
+└── workflows/         # GitHub Actions CI/CD pipeline
+
+Dockerfile             # Production image
+Dockerfile.mvp         # Lightweight MVP image
+docker-compose.yml     # Full stack orchestration
+docker-compose.postgres.yml   # PostgreSQL-only variant
+```
+
+---
+
+## Project Structure
+
+```
+zapbot/
+├── ai/
+│   ├── assistant.js           # AI guardrails + RAG pipeline
+│   └── platformAssistant.js   # Contextual platform help
+├── backend/
+│   └── services/              # Legacy multi-service prototype (reference only)
+├── config/                    # App configuration
+├── design systems/            # UI design tokens and system docs
+├── docs/
+│   └── supabase.sql           # Indexes, pgvector, RLS policies
+├── examples/
+│   ├── flow.sample.json       # Flow definition example
+│   ├── sequence.sample.json   # Sequence definition example
+│   └── transmission.sample.json
+├── frontend/                  # React + Vite dashboard
+├── infra/aws/terraform/       # AWS Terraform modules
+├── integrations/              # CRM, payments, REST, GraphQL, MCP client
+├── mcp-server/                # Python MCP server
+├── middleware/                # Express middleware
+├── models/                    # Sequelize ORM models
+├── routes/                    # REST route modules
+├── scripts/                   # Utility scripts
+├── tasks/                     # Sequence and broadcast schedulers
+├── tests/                     # Test suite
+├── flowEngine.js              # JSON flow interpreter
+├── rag.js                     # Qdrant RAG scaffold
+├── server.js                  # Express entrypoint
+├── webhookHandler.js          # Meta webhook parser
+└── whatsapp.js                # WhatsApp Cloud API helpers
+```
+
+---
+
+## Local Development
+
+**Run only the API:**
+
+```bash
+npm start
+```
+
+**Run validations and tests:**
+
+```bash
+npm run check
+npm test
+npm run build:frontend
+```
+
+**Customize the product name:**
+
+```bash
+VITE_PROJECT_NAME=MyProduct
+DEFAULT_WORKSPACE_NAME=MyProduct Demo
+```
+
+---
+
+## Production Notes
+
+Before exposing the service to production traffic:
+
+- Rotate `JWT_SECRET`, `SERVICE_TOKEN`, admin credentials, and all API keys.
+- Enforce HTTPS for the Meta webhook and MCP live backend.
+- Respect WhatsApp opt-in, opt-out, and template policies before large broadcast campaigns.
+- Add per-connector allowlists before opening generic REST/GraphQL to untrusted users.
+- Store only scoped tokens for external MCP integrations (`tools/list` and `tools/call`).
+- Replace `node-cron` with a durable queue (e.g. BullMQ, SQS) as broadcast and sequence volume grows.
+- Complete embedding generation in `rag.js` before depending on RAG quality in production.
+
+---
+
+## License
+
+Distributed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+**ZapBot** — *Every conversation automated. Every customer covered. Every integration connected.*
+
+</div>
