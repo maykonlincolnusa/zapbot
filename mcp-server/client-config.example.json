@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "zapbot-ai-whatsapp": {
+      "command": "python",
+      "args": ["mcp-server/main.py"],
+      "env": {
+        "MCP_BACKEND": "live",
+        "ZAPBOT_API_BASE_URL": "http://localhost:3000",
+        "ZAPBOT_API_TOKEN": "replace-with-service-token"
+      }
+    }
+  }
+}

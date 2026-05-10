@@ -1,0 +1,25 @@
+{
+  "name": "Follow-up de proposta",
+  "description": "Cadencia de 3 dias para leads que receberam uma proposta comercial.",
+  "active": true,
+  "steps": [
+    {
+      "stepOrder": 1,
+      "delayValue": 0,
+      "delayUnit": "minutes",
+      "messageText": "Oi! Enviei a proposta e posso tirar qualquer duvida por aqui."
+    },
+    {
+      "stepOrder": 2,
+      "delayValue": 1,
+      "delayUnit": "days",
+      "messageText": "Passando para saber se voce conseguiu avaliar a proposta."
+    },
+    {
+      "stepOrder": 3,
+      "delayValue": 2,
+      "delayUnit": "days",
+      "messageText": "Ultimo lembrete: posso ajudar com condicoes, prazo ou detalhes tecnicos."
+    }
+  ]
+}

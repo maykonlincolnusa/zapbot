@@ -1,0 +1,49 @@
+{
+  "name": "zapbot-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ZapBot AI platform with Express, Supabase/PostgreSQL, WhatsApp Cloud API, AI agents, automation and React dashboard.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "concurrently -n api,frontend -c cyan,green \"node --watch server.js\" \"npm run dev --prefix frontend -- --host 0.0.0.0 --port 5173\"",
+    "dev:api": "node --watch server.js",
+    "dev:services": "concurrently -n backend,frontend -c cyan,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend -- --host 0.0.0.0 --port 5173\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend -- --host 0.0.0.0 --port 5173",
+    "dev:mcp": "python mcp-server/main.py",
+    "start:mvp": "node server.js",
+    "start:backend": "npm run start --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "preview:frontend": "npm run preview --prefix frontend -- --host 0.0.0.0 --port 5173",
+    "check": "node scripts/check.js",
+    "test": "npm run check && node --test tests/*.test.js",
+    "test:frontend": "npm test --prefix frontend",
+    "test:legacy": "npm test --prefix backend",
+    "audit:prod": "npm audit --omit=dev",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "pg": "^8.20.0",
+    "pg-hstore": "^2.3.4",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "sequelize": "^6.37.5",
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.2.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

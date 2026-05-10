@@ -1,0 +1,35 @@
+{
+  "name": "Qualificacao comercial",
+  "trigger": "quero conhecer",
+  "definition": {
+    "start": "inicio",
+    "steps": {
+      "inicio": {
+        "message": "Oi! Voce quer falar com vendas, suporte ou financeiro?",
+        "buttons": [
+          { "id": "vendas", "label": "Vendas", "next": "vendas" },
+          { "id": "suporte", "label": "Suporte", "next": "suporte" },
+          { "id": "financeiro", "label": "Financeiro", "next": "financeiro" }
+        ]
+      },
+      "vendas": {
+        "message": "Perfeito. Qual e o tamanho da sua equipe?",
+        "next": "fim_vendas"
+      },
+      "suporte": {
+        "message": "Me envie um resumo do problema e um atendente tecnico assume daqui.",
+        "next": null,
+        "completionMessage": "Obrigado. Encaminhei sua conversa para suporte."
+      },
+      "financeiro": {
+        "message": "Voce precisa de boleto, nota fiscal ou segunda via?",
+        "next": null,
+        "completionMessage": "Obrigado. O time financeiro vai continuar por aqui."
+      },
+      "fim_vendas": {
+        "message": "Obrigado. Um consultor vai continuar o atendimento pelo WhatsApp.",
+        "next": null
+      }
+    }
+  }
+}

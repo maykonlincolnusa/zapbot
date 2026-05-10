@@ -1,0 +1,31 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Demo Lead",
+      "phone": "5511999999999",
+      "email": "lead@example.local",
+      "tags": ["lead", "mcp"]
+    }
+  ],
+  "chats": [
+    {
+      "id": 1,
+      "status": "open",
+      "ContactId": 1,
+      "lastMessageAt": "2026-05-05T00:00:00Z",
+      "assignedAttendant": null
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "ChatId": 1,
+      "ContactId": 1,
+      "direction": "inbound",
+      "body": "Ola, quero conhecer o ZapBot AI.",
+      "status": "received",
+      "createdAt": "2026-05-05T00:00:00Z"
+    }
+  ]
+}

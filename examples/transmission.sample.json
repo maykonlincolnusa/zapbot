@@ -1,0 +1,10 @@
+{
+  "name": "Transmissao de leads quentes",
+  "messageText": "Oi! Temos uma nova agenda de demonstracoes esta semana. Quer reservar um horario?",
+  "flowId": null,
+  "targetTags": ["lead", "quente"],
+  "delayType": "smart",
+  "delayMinSeconds": 30,
+  "delayMaxSeconds": 180,
+  "autoStart": false
+}
